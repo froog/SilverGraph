@@ -26,7 +26,7 @@
  *
  *  Specify the folder to look for classes under
  *  location=mysite <default>   Only graph classes under the /mysite folder
- *  location=/                  Graph ALL classes in every module (warning - takes a long time and will generate a large .png)
+ *  location=/                  Graph ALL classes in every module (warning - may take a long time and could generate a large .png)
  *  location=mysite,mymodule    Only graph classes under /mysite and /mymodule folders
  *
  *  How far to traverse and render relations
@@ -42,8 +42,11 @@
  *  ancestry=0	Don't show any ancestry relations
  *  ancestry=1   <default> Show only immediate descendants
  *
- *  inherited=false <default> Don't show inherited method or relations
- *  inherited=true			 Show inherited methods or relations (verbose)
+ *  inherited=0 <default> Don't show inherited method or relations
+ *  inherited=1			 Show inherited methods or relations (verbose)
+ *
+ *  include-root=0 <default>    Don't graph DataObject itself
+ *  include-root=1              Graph DataObject
  *
  */
 
@@ -55,9 +58,10 @@ class Silvergraph extends CliController {
         "png"
     );
 
-    private function paramDefault($param, $default = null, $isNumeric = false) {
+    private function paramDefault($param, $default = null, $type = "string") {
         $value = $this->request->getVar($param);
-        if (empty($value) || ($isNumeric && !is_numeric($value))) {
+        if (empty($value) ||
+            ($type == "numeric" && !is_numeric($value))) {
             $value= $default;
         }
         return $value;
@@ -71,9 +75,10 @@ class Silvergraph extends CliController {
     public function dot(){
 
         $location =     $this->paramDefault('location', 'mysite');
-        $depth =        $this->paramDefault('depth', 1, true);
-        $ancestry =     $this->paramDefault('ancestry', 1, true);
-        $inherited =    $this->paramDefault('inherited', false);
+        $depth =        $this->paramDefault('depth', 1, 'numeric');
+        $ancestry =     $this->paramDefault('ancestry', 1, 'numeric');
+        $inherited =    $this->paramDefault('inherited', 0, 'numeric');
+        $include_root = $this->paramDefault('include-root', 0, 'numeric');
         $exclude =      $this->paramDefault('exlcude');
 
         $renderClasses = array();
@@ -138,7 +143,7 @@ class Silvergraph extends CliController {
             //Get all the relations for the class
             if ($depth > 0) {
 
-                if ($inherited) {
+                if ($inherited == 1) {
 					$config = Config::INHERITED;
                 } else {
 					$config = Config::UNINHERITED;					
@@ -180,11 +185,14 @@ class Silvergraph extends CliController {
 				//getClassAncestry returns an array ordered from root to called class - to get parent, reverse and remove top element (called class)
 				$classAncestry = array_reverse($classAncestry);
 				array_shift($classAncestry);
-				
 				$parentClass = reset($classAncestry);
-				$hasOneArray["Parent"] = $parentClass;
-				
-				
+                $hasOneArray["Parent"] = $parentClass;
+
+                //Ensure DataObject is not shown if include-root = 0
+                if ($include_root == 0 && $parentClass == "DataObject") {
+                    unset($hasOneArray["Parent"]);
+                }
+
                 $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
                 $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
                 $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
