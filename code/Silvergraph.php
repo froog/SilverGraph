@@ -42,8 +42,8 @@
  *  ancestry=0	Don't show any ancestry relations
  *  ancestry=1   <default> Show only immediate descendants
  *
- *  inherited=0 <default> Don't show inherited method or relations
- *  inherited=1			 Show inherited methods or relations (verbose)
+ *  inherited-relations=0 <default> Don't show inherited relations
+ *  inherited-relations=1			Show inherited relations (verbose)
  *
  *  include-root=0 <default>    Don't graph DataObject itself
  *  include-root=1              Graph DataObject
@@ -77,9 +77,9 @@ class Silvergraph extends CliController {
         $location =     $this->paramDefault('location', 'mysite');
         $depth =        $this->paramDefault('depth', 1, 'numeric');
         $ancestry =     $this->paramDefault('ancestry', 1, 'numeric');
-        $inherited =    $this->paramDefault('inherited', 0, 'numeric');
+        $inherited_relations =    $this->paramDefault('inherited-relations', 0, 'numeric');
         $include_root = $this->paramDefault('include-root', 0, 'numeric');
-        $exclude =      $this->paramDefault('exlcude');
+        $exclude =      $this->paramDefault('exclude');
 
         $renderClasses = array();
 
@@ -143,7 +143,7 @@ class Silvergraph extends CliController {
             //Get all the relations for the class
             if ($depth > 0) {
 
-                if ($inherited == 1) {
+                if ($inherited_relations == 1) {
 					$config = Config::INHERITED;
                 } else {
 					$config = Config::UNINHERITED;					
