@@ -48,6 +48,10 @@
  *  include-root=0 <default>    Don't graph DataObject itself
  *  include-root=1              Graph DataObject
  *
+ *  group = 1 <default>  Don't group by folders
+ *  group = 0            Group the folders(modules) into their own boxes
+ *
+ *
  */
 
 class Silvergraph extends CliController {
@@ -80,6 +84,7 @@ class Silvergraph extends CliController {
         $inherited_relations =    $this->paramDefault('inherited-relations', 0, 'numeric');
         $include_root = $this->paramDefault('include-root', 0, 'numeric');
         $exclude =      $this->paramDefault('exclude');
+        $group =        $this->paramDefault('group', 0, 'numeric');
 
         $renderClasses = array();
 
@@ -93,121 +98,133 @@ class Silvergraph extends CliController {
         $folders = explode(",", $location);
         $folderClasses = array();
         foreach($folders as $folder) {
-            $folderClasses = array_merge($folderClasses, ClassInfo::classes_for_folder($folder));
+            $folderClasses[$folder] = ClassInfo::classes_for_folder($folder);
         }
 
-        //Get the intersection of the two
-        foreach($dataClasses as $key => $dataClass) {
-            foreach($folderClasses as $folderClass) {
-                if (strtolower($dataClass) == strtolower($folderClass)) {;
-                    $renderClasses[$dataClass] = $dataClass;
-                }
-            }
-        }
-
-        //Remove all excluded classes
         $excludeArray = explode(",", $exclude);
-        foreach($excludeArray as $exclude) {
-            unset($renderClasses[$exclude]);
+
+        //Get the intersection of the two - grouped by the folder
+        foreach($dataClasses as $key => $dataClass) {
+            foreach($folderClasses as $folder => $classList) {
+                foreach($classList as $folderClass) {
+                    if (strtolower($dataClass) == strtolower($folderClass)) {;
+                        //Remove all excluded classes
+                        if (!in_array($dataClass, $excludeArray)) {
+                            $renderClasses[$folder][$dataClass] = $dataClass;
+                        }
+                    }
+                }
+            }
         }
 
-        $classes = new ArrayList();
+        $folders = new ArrayList();
 
-        foreach($renderClasses as $className) {
-            //Create a singleton of the class, to use for has_one,etc  instance methods
-            $singleton = singleton($className);
+        foreach($renderClasses as $folderName => $classList) {
 
-            //Create a blank DO to use for rendering on the template
-            $class = new DataObject();
-            $class->ClassName = $className;
+            $folder = new DataObject();
+            $folder->Name = $folderName;
+            $folder->Group = ($group == 1);
+            $classes = new ArrayList();
 
-            //Get all the data field for the class
-            //NOTE - custom_database_fields doesn't get inheirted fields
-            $dataFields = DataObject::custom_database_fields($className);
-            $fields = new ArrayList();
-            foreach($dataFields as $fieldName => $dataType) {
-                $field = new DataObject();
-                $field->FieldName = $fieldName;
+            foreach ($classList as $className) {
+                //Create a singleton of the class, to use for has_one,etc  instance methods
+                $singleton = singleton($className);
 
-                //special case - Enums are too long - put new lines on commas
-                if (strpos($dataType, "Enum") === 0) {
-                    $dataType = str_replace(",", ",<br/>", $dataType);
+                //Create a blank DO to use for rendering on the template
+                $class = new DataObject();
+                $class->ClassName = $className;
+
+                //Get all the data field for the class
+                //NOTE - custom_database_fields doesn't get inheirted fields
+                $dataFields = DataObject::custom_database_fields($className);
+                $fields = new ArrayList();
+                foreach($dataFields as $fieldName => $dataType) {
+                    $field = new DataObject();
+                    $field->FieldName = $fieldName;
+
+                    //special case - Enums are too long - put new lines on commas
+                    if (strpos($dataType, "Enum") === 0) {
+                        $dataType = str_replace(",", ",<br/>", $dataType);
+                    }
+
+                    $field->DataType = $dataType;
+                    $fields->push($field);
                 }
 
-                $field->DataType = $dataType;
-                $fields->push($field);
-            }
+                $class->FieldList = $fields;
 
-            $class->FieldList = $fields;
+                //Get all the relations for the class
+                if ($depth > 0) {
 
-            //Get all the relations for the class
-            if ($depth > 0) {
+                    if ($inherited_relations == 1) {
+                        $config = Config::INHERITED;
+                    } else {
+                        $config = Config::UNINHERITED;
+                    }
 
-                if ($inherited_relations == 1) {
-					$config = Config::INHERITED;
-                } else {
-					$config = Config::UNINHERITED;					
-				}	
+                    $hasOneArray = Config::inst()->get($className, 'has_one', $config);
+                    $hasManyArray = Config::inst()->get($className, 'has_many', $config);
+                    $manyManyArray = Config::inst()->get($className, 'many_many', $config);
 
-				$hasOneArray = Config::inst()->get($className, 'has_one', $config);
-				$hasManyArray = Config::inst()->get($className, 'has_many', $config);
-				$manyManyArray = Config::inst()->get($className, 'many_many', $config);					
-										
-				//TODO - what's the difference between:
-				/*
-				$hasOneArray = Config::inst()->get($className, 'has_one');
-				$hasManyArray = Config::inst()->get($className, 'has_many');
-				$manyManyArray = Config::inst()->get($className, 'many_many');
-				
-				//and
-				
-				$hasOneArray = $singleton->has_one();
-				$hasManyArray = $singleton->has_many();
-				$manyManyArray = $singleton->many_many();
-				//Note - has_() calls are verbose - they retrieve relations all the way down to base class
-				// ?? eg; for SiteTree, BackLinkTracking is a belongs_many_many
-				*/
-				
-				//$belongsToArray = $singleton->belongs_to();
-				//print_r(ClassInfo::ancestry($className));
-				//print_r($singleton->getClassAncestry());
-                
-				
-				//If ancestry = 0, remove the "Parent" relation in has_one
-				/*if ($ancestry == 0 && isset($hasOneArray["Parent"])) {
-					unset($hasOneArray["Parent"]);
-				}*/
-				
-				//Add parent class to HasOne
-				//Remove the default "Parent" because thats the final parent, rather than the immediate parent
-				unset($hasOneArray["Parent"]);
-				$classAncestry = ClassInfo::ancestry($className);
-				//getClassAncestry returns an array ordered from root to called class - to get parent, reverse and remove top element (called class)
-				$classAncestry = array_reverse($classAncestry);
-				array_shift($classAncestry);
-				$parentClass = reset($classAncestry);
-                $hasOneArray["Parent"] = $parentClass;
+                    //TODO - what's the difference between:
+                    /*
+                    $hasOneArray = Config::inst()->get($className, 'has_one');
+                    $hasManyArray = Config::inst()->get($className, 'has_many');
+                    $manyManyArray = Config::inst()->get($className, 'many_many');
 
-                //Ensure DataObject is not shown if include-root = 0
-                if ($include_root == 0 && $parentClass == "DataObject") {
+                    //and
+
+                    $hasOneArray = $singleton->has_one();
+                    $hasManyArray = $singleton->has_many();
+                    $manyManyArray = $singleton->many_many();
+                    //Note - has_() calls are verbose - they retrieve relations all the way down to base class
+                    // ?? eg; for SiteTree, BackLinkTracking is a belongs_many_many
+                    */
+
+                    //$belongsToArray = $singleton->belongs_to();
+                    //print_r(ClassInfo::ancestry($className));
+                    //print_r($singleton->getClassAncestry());
+
+
+                    //If ancestry = 0, remove the "Parent" relation in has_one
+                    /*if ($ancestry == 0 && isset($hasOneArray["Parent"])) {
+                        unset($hasOneArray["Parent"]);
+                    }*/
+
+                    //Add parent class to HasOne
+                    //Remove the default "Parent" because thats the final parent, rather than the immediate parent
                     unset($hasOneArray["Parent"]);
+                    $classAncestry = ClassInfo::ancestry($className);
+                    //getClassAncestry returns an array ordered from root to called class - to get parent, reverse and remove top element (called class)
+                    $classAncestry = array_reverse($classAncestry);
+                    array_shift($classAncestry);
+                    $parentClass = reset($classAncestry);
+                    $hasOneArray["Parent"] = $parentClass;
+
+                    //Ensure DataObject is not shown if include-root = 0
+                    if ($include_root == 0 && $parentClass == "DataObject") {
+                        unset($hasOneArray["Parent"]);
+                    }
+
+                    $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
+                    $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
+                    $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
+
                 }
 
-                $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
-                $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
-
+                $classes->push($class);
             }
 
-            $classes->push($class);
+            $folder->Classes = $classes;
+            $folders->push($folder);
         }
 
         $this->customise(array(
-            "Classes" => $classes
+            "Folders" => $folders
         ));
 
 
-        return $this->renderWith("SilvergraphTest");
+        return $this->renderWith("Silvergraph");
 
     }
 
