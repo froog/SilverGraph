@@ -31,9 +31,9 @@ Flexible configuration options and can be called from command line and URL.
 ###Parameters###
 
 ####Specify the folder to look for classes under
-location=mysite <default>   Only graph classes under the /mysite folder
-location=/                  Graph ALL classes in every module (warning - may take a long time and could generate a large .png)
-location=mysite,mymodule    Only graph classes under /mysite and /mymodule folders
+* `location=mysite` _<default>_   Only graph classes under the /mysite folder
+* `location=/`                  Graph ALL classes in every module (warning - may take a long time and could generate a large .png)
+* `location=mysite,mymodule`    Only graph classes under /mysite and /mymodule folders
 
 ####Remove specific classes from the graph
 exclude=SiteTree
