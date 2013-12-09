@@ -23,13 +23,13 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 ###Command line: (in site root)###
 
 * Default png image:   `sake Silvergraph/png > datamodel.png` 
-* Parameter example:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png` 
+* Parameters:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png` 
 * Default dot file:    `sake Silvergraph/dot > datamodel.dot`
 
 ###Browser: (logged in as admin)###
 
 * Default png image:   http://example.com/Silvergraph/png
-* Parameter example:   http://example.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
+* Parameters:   http://example.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
 * Default dot file: http://example.com/Silvergraph/dot
 
 ###Parameters###
