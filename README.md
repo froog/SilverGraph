@@ -1,7 +1,7 @@
 SilverGraph
 ===========
 
-Creates data model graphs of SilverStripe classes that extend DataObject, showing fields, relations and ancestry.
+Creates data model visualisations of SilverStripe DataObjects, showing fields, relations and ancestry.
 Can output images in .png, .svg and raw GraphViz "dot" format.
 Flexible configuration options and can be called from command line and URL.
 
