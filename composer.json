@@ -1,5 +1,5 @@
 {
-    "name": "froog/SilverGraph",
+    "name": "froog/silvergraph",
     "description": "Generates data model visualisations from SilverSripe DataObjects, displaying database fields, relations and ancestry",
     "type": "silverstripe-module",
     "keywords": ["silverstripe", "permissions", "cms", "member"],
