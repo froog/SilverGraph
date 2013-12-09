@@ -5,6 +5,10 @@ Creates data model visualisations of SilverStripe DataObjects, showing fields, r
 Can output images in .png, .svg and raw GraphViz "dot" format.
 Flexible configuration options and can be called from command line and URL.
 
+![SilverGraph example](https://raw.github.com/froog/SilverGraph/master/doc/SilverGraph_example__location=cms,framework,mysite.png)
+
+_Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
+
 ##Installation##
 * Composer/Packagist: Install composer and then run `composer require froog/silvergraph dev-master`
 * Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
@@ -24,9 +28,9 @@ Flexible configuration options and can be called from command line and URL.
 
 ###Browser: (logged in as admin)###
 
-* Default png image:   http://mysite.com/Silvergraph/png
-* Parameter example:   http://mysite.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
-* Default dot file: http://mysite.com/Silvergraph/dot
+* Default png image:   http://example.com/Silvergraph/png
+* Parameter example:   http://example.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
+* Default dot file: http://example.com/Silvergraph/dot
 
 ###Parameters###
 
