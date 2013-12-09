@@ -10,7 +10,7 @@ Flexible configuration options and can be called from command line and URL.
 _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 
 ##Installation##
-* Composer/Packagist: Install composer and then run `composer require froog/silvergraph dev-master`
+* Composer/Packagist: Install composer and then run `composer require froog/silvergraph` (* for version)
 * Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
 
 ##Requirements##
