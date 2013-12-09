@@ -1,0 +1,19 @@
+{
+    "name": "froog/SilverGraph",
+    "description": "Generates data model visualisations from SilverSripe DataObjects, displaying database fields, relations and ancestry",
+    "type": "silverstripe-module",
+    "keywords": ["silverstripe", "permissions", "cms", "member"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Daniel Pickering",
+            "email": "froogalicious@gmail.com"
+        }
+    ],
+
+    "require":
+    {
+	"silverstripe/cms": "~3.0",
+	"silverstripe/framework": "~3.0"
+    }
+}
