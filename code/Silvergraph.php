@@ -11,7 +11,6 @@
 
 class Silvergraph extends CliController {
 
-
     private static $allowed_actions = array(
         "dot",
         "png"
@@ -210,6 +209,8 @@ class Silvergraph extends CliController {
 
         $cmd = 'dot -Tpng';
 
+        //Execute the dot command on the local machine.
+        //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
         $descriptorspec = array(
             0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
             1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
@@ -243,19 +244,4 @@ class Silvergraph extends CliController {
             echo $png_content;
         }
     }
-
-    /*public static function subclassesInFolder($class, $folderPath) {
-        $absFolderPath  = Director::getAbsFile($folderPath);
-        $matchedClasses = array();
-        $descendants = SS_ClassLoader::instance()->getManifest()->getDescendantsOf($class);
-        $result      = array($class => $class);
-
-        if ($descendants) {
-            return $result + ArrayLib::valuekey($descendants);
-        } else {
-            return $result;
-        }
-    }*/
-
-
 }
