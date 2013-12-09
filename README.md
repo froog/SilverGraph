@@ -6,27 +6,27 @@ Can output images in .png, .svg and raw GraphViz "dot" format.
 Flexible configuration options and can be called from command line and URL.
 
 ##Installation##
-* Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
 * Composer/Packagist: Install composer and then run `composer require froog/silvergraph dev-master`
+* Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
 
 ##Requirements##
  * SilverStripe 3.0.0+
- * To create images: GraphViz (latest version) http://www.graphviz.org/
- 	To install (Debian/Ubuntu): `apt-get install graphviz`
+ * To create images: GraphViz (latest version) http://www.graphviz.org/ 
+  * To install (Debian/Ubuntu): `apt-get install graphviz`  
 
 ##Usage##
 
-###Command line###
+###Command line: (in site root)###
 
-Default png image:   `sake Silvergraph/png > datamodel.png`
-Parameter example:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png`
-Default dot file:    `sake Silvergraph/dot > datamodel.dot`
+* Default png image:   `sake Silvergraph/png > datamodel.png` 
+* Parameter example:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png` 
+* Default dot file:    `sake Silvergraph/dot > datamodel.dot`
 
 ###Browser: (logged in as admin)###
 
-http://mysite.com/Silvergraph/png
-http://mysite.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
-http://mysite.com/Silvergraph/dot
+* Default png image:   http://mysite.com/Silvergraph/png
+* Parameter example:   http://mysite.com/Silvergraph/png?location=mysite,cms&inherited=1&exclude=SiteTree
+* Default dot file: http://mysite.com/Silvergraph/dot
 
 ###Parameters###
 
