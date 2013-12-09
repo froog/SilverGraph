@@ -4,52 +4,7 @@
  *
  * Generates data model graphs from SilverSripe DataObjects, displaying database fields, relations and ancestry
  *
- * Creates directed graphs in the "dot" format, to be used by the GraphViz dot command
- * (see http://www.graphviz.org/), to then create png images from that dot format
- *
- *
- * Usage:
- *
- * Command line:
- *
- * Default png image:   sake Silvergraph/png > datamodel.png
- * Parameters:          sake Silvergraph/png location=mysite,cms inherited=true > datamodel.png
- * Default dot file:    sake Silvergraph/dot > datamodel.dot
- *
- * Browser: (only logged in as admin)
- *
- * mysite.com/Silvergraph/png
- * mysite.com/Silvergraph/png?location=mysite,cms&inherited=true
- *
- *
- * Parameters:
- *
- *  Specify the folder to look for classes under
- *  location=mysite <default>   Only graph classes under the /mysite folder
- *  location=/                  Graph ALL classes in every module (warning - may take a long time and could generate a large .png)
- *  location=mysite,mymodule    Only graph classes under /mysite and /mymodule folders
- *
- *  How far to traverse and render relations
- *  depth=0  Don't show any relations
- *  depth=1  Only show relations between included classes
- *  depth=2  Show next level of classes
- *
- *  Remove specific classes from the graph
- *  exclude=SiteTree
- *  exlcude=SiteTree,File
- *
- *  How far to show decesndants
- *  ancestry=0	Don't show any ancestry relations
- *  ancestry=1   <default> Show only immediate descendants
- *
- *  inherited-relations=0 <default> Don't show inherited relations
- *  inherited-relations=1			Show inherited relations (verbose)
- *
- *  include-root=0 <default>    Don't graph DataObject itself
- *  include-root=1              Graph DataObject
- *
- *  group = 1 <default>  Don't group by folders
- *  group = 0            Group the folders(modules) into their own boxes
+ * Refer to README.md for usage guide and requirements
  *
  *
  */
