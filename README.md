@@ -68,13 +68,7 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 ## TO DO
 
 * Better default styling/colours of the graph
-* create svg output method
 * Less verbose option for relations, eg; combining has_one, has_many paths on the same path
-* Showing inherited fields on class tables
 * Better error handling from dot -> png, if error in dot format
 
-####How far to traverse and render relations
-* depth=0  Don't show any relations
-* depth=1  Only show relations between included classes
-* depth=2  Show next level of classes
 

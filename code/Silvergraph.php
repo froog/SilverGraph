@@ -13,7 +13,8 @@ class Silvergraph extends CliController {
 
     private static $allowed_actions = array(
         "dot",
-        "png"
+        "png",
+        "svg"
     );
 
     private function paramDefault($param, $default = null, $type = "string") {
@@ -222,16 +223,38 @@ class Silvergraph extends CliController {
         return $relationList;
     }
 
-    /** Calls the local dot command to generates a png file based off dot();
-     *
-     * NOTE: Requires graphviz & dot to be installed locally
-     * (eg;  apt-get install graphviz)
+    /** Generate a png file from the dot template
      *
      */
     public function png() {
         $dot = $this->dot();
+        $output = $this->execute("-Tpng", $dot);
 
-        $cmd = 'dot -Tpng';
+        //Return the content as a png
+        header('Content-type: image/png');
+        echo $output;
+    }
+
+    /** Generate a svg file from the dot template
+     *
+     */
+    public function svg() {
+        $dot = $this->dot();
+        $output = $this->execute("-Tsvg", $dot);
+
+        //Return the content as a svg
+        header('Content-type: image/svg+xml');
+        echo $output;
+    }
+
+    /** Execute the dot command wih $parameters, passing in $input to stdin. Returns stdout as $output
+     * NOTE: Requires graphviz & dot to be installed locally
+     * (eg;  apt-get install graphviz)
+     *
+     */
+    private function execute($parameters, $input) {
+
+        $cmd = 'dot ' . $parameters;
 
         //Execute the dot command on the local machine.
         //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
@@ -248,10 +271,10 @@ class Silvergraph extends CliController {
             // 0 => writeable handle connected to child stdin
             // 1 => readable handle connected to child stdout
 
-            fwrite($pipes[0], $dot);
+            fwrite($pipes[0], $input);
             fclose($pipes[0]);
 
-            $png_content = stream_get_contents($pipes[1]);
+            $output = stream_get_contents($pipes[1]);
             $error = stream_get_contents($pipes[2]);
             fclose($pipes[1]);
 
@@ -263,9 +286,7 @@ class Silvergraph extends CliController {
                 user_error("Couldn't execute dot command, ensure graphviz is installed and dot is on path. Shell error: $error");
             }
 
-            //Return the content as a png
-            header('Content-type: image/png');
-            echo $png_content;
+            return $output;
         }
     }
 }
