@@ -55,7 +55,9 @@ class Silvergraph extends CliController {
         $folders = explode(",", $opt['location']);
         $folderClasses = array();
         foreach($folders as $folder) {
-            $folderClasses[$folder] = ClassInfo::classes_for_folder($folder);
+            if (!empty($folder)) {
+                $folderClasses[$folder] = ClassInfo::classes_for_folder($folder);
+            }
         }
 
         $excludeArray = explode(",", $opt['exclude']);
@@ -72,6 +74,10 @@ class Silvergraph extends CliController {
                     }
                 }
             }
+        }
+
+        if (count($renderClasses) == 0) {
+            user_error("No classes that extend DataObject found in location: " . Convert::raw2xml($opt['location']));
         }
 
         $folders = new ArrayList();
@@ -202,9 +208,13 @@ class Silvergraph extends CliController {
             "Folders" => $folders
         ));
 
+        $output = $this->renderWith("Silvergraph");
 
-        return $this->renderWith("Silvergraph");
+        //Set output as plain text, and strip excess empty lines
+        $this->response->addHeader("Content-type", "text/plain");
+        $output= preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $output);
 
+        return $output;
     }
 
     public static function relationObject($relationArray, $excludeArray) {
