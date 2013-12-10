@@ -62,8 +62,8 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * `include-root=1`              Graph DataObject
 
 ####Group classes by modules
-* `group=1` _(default)_  Don't group by modules
-* `group=0`            Group the modules into their own container
+* `group=0` _(default)_  Don't group by modules
+* `group=1`            Group the modules into their own container
 
 ## TO DO
 
