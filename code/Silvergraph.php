@@ -18,7 +18,7 @@ class Silvergraph extends CliController {
 
     private function paramDefault($param, $default = null, $type = "string") {
         $value = $this->request->getVar($param);
-        if (empty($value) ||
+        if  (($type == "string" && empty($value)) ||
             ($type == "numeric" && !is_numeric($value))) {
             $value= $default;
         }
@@ -32,13 +32,15 @@ class Silvergraph extends CliController {
      */
     public function dot(){
 
-        $location =     $this->paramDefault('location', 'mysite');
-        $depth =        $this->paramDefault('depth', 1, 'numeric');
-        $ancestry =     $this->paramDefault('ancestry', 1, 'numeric');
-        $inherited_relations =    $this->paramDefault('inherited-relations', 0, 'numeric');
-        $include_root = $this->paramDefault('include-root', 0, 'numeric');
-        $exclude =      $this->paramDefault('exclude');
-        $group =        $this->paramDefault('group', 0, 'numeric');
+        $opt = array();
+
+        $opt['location'] =      $this->paramDefault('location', 'mysite');
+        $opt['ancestry'] =      $this->paramDefault('ancestry', 1, 'numeric');
+        $opt['relations'] =     $this->paramDefault('relations', 1, 'numeric');
+        $opt['fields'] =        $this->paramDefault('fields', 0, 'numeric');
+        $opt['include_root'] =  $this->paramDefault('include-root', 0, 'numeric');
+        $opt['exclude'] =       $this->paramDefault('exclude');
+        $opt['group'] =         $this->paramDefault('group', 0, 'numeric');
 
         $renderClasses = array();
 
@@ -49,13 +51,13 @@ class Silvergraph extends CliController {
         array_shift($dataClasses);
 
         //Get all classes in a specific folder(s)
-        $folders = explode(",", $location);
+        $folders = explode(",", $opt['location']);
         $folderClasses = array();
         foreach($folders as $folder) {
             $folderClasses[$folder] = ClassInfo::classes_for_folder($folder);
         }
 
-        $excludeArray = explode(",", $exclude);
+        $excludeArray = explode(",", $opt['exclude']);
 
         //Get the intersection of the two - grouped by the folder
         foreach($dataClasses as $key => $dataClass) {
@@ -77,7 +79,7 @@ class Silvergraph extends CliController {
 
             $folder = new DataObject();
             $folder->Name = $folderName;
-            $folder->Group = ($group == 1);
+            $folder->Group = ($opt['group'] == 1);
             $classes = new ArrayList();
 
             foreach ($classList as $className) {
@@ -108,9 +110,9 @@ class Silvergraph extends CliController {
                 $class->FieldList = $fields;
 
                 //Get all the relations for the class
-                if ($depth > 0) {
+                if ($opt['relations'] > 0) {
 
-                    if ($inherited_relations == 1) {
+                    if ($opt['relations'] > 1) {
                         $config = Config::INHERITED;
                     } else {
                         $config = Config::UNINHERITED;
@@ -140,11 +142,6 @@ class Silvergraph extends CliController {
                     //print_r($singleton->getClassAncestry());
 
 
-                    //If ancestry = 0, remove the "Parent" relation in has_one
-                    /*if ($ancestry == 0 && isset($hasOneArray["Parent"])) {
-                        unset($hasOneArray["Parent"]);
-                    }*/
-
                     //Add parent class to HasOne
                     //Remove the default "Parent" because thats the final parent, rather than the immediate parent
                     unset($hasOneArray["Parent"]);
@@ -156,14 +153,18 @@ class Silvergraph extends CliController {
                     $hasOneArray["Parent"] = $parentClass;
 
                     //Ensure DataObject is not shown if include-root = 0
-                    if ($include_root == 0 && $parentClass == "DataObject") {
+                    if ($opt['include_root'] == 0 && $parentClass == "DataObject") {
+                        unset($hasOneArray["Parent"]);
+                    }
+
+                    //if ancestry = 0, remove the "Parent" relation in has_one
+                    if ($opt['ancestry'] == 0 && isset($hasOneArray["Parent"])) {
                         unset($hasOneArray["Parent"]);
                     }
 
                     $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
                     $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
                     $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
-
                 }
 
                 $classes->push($class);

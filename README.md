@@ -43,9 +43,19 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * `exclude=SiteTree`
 * `exclude=SiteTree,File`
 
-####Show or hide inherited relations
-* `inherited-relations=0` _(default)_ Don't show inherited relations
-* `inherited-relations=1`			Show inherited relations (verbose)
+####How verbosely to show relations
+* `relations=0` Don't show any relations
+* `relations=1` _(default)_ Don't show inherited relations
+* `relations=2`			Show inherited relations (verbose)
+
+####How verbosely to show fields
+* `fields=0` Don't show any fields
+* `fields=1` _(default)_ Show only fields defined on self
+* `fields=2`			Show inherited fields (verbose)
+
+####How verbosely to show ancestors
+* `ancestry=0` Don't show any ancestry relations
+* `ancestry=1` _(default)_ Show ancestry relations
 
 ####Include DataObject on the graph
 * `include-root=0` _(default)_   Don't graph DataObject
@@ -68,10 +78,3 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * depth=1  Only show relations between included classes
 * depth=2  Show next level of classes
 
-####How far to show decesndants
-* ancestry=0 Don't show any ancestry relations
-* ancestry=1  <default> Show only immediate descendants
-
-####Show or hide inherited database fields
-* inherited-fields=0 <default> Don't show inherited fields
-* inherited-fields=1			Show inherited fields (verbose)
