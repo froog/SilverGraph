@@ -65,6 +65,9 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * `group=0` _(default)_  Don't group by modules
 * `group=1`            Group the modules into their own container
 
+####Specify direction graph is laid out
+* `rankdir=x`            	Where x is `LR` _(default)_ ,`RL`,`TB`,or `BT` (left-right, right-left, top-bottom, bottom-top)
+
 ## TO DO
 
 * Better default styling/colours of the graph

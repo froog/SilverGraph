@@ -42,6 +42,11 @@ class Silvergraph extends CliController {
         $opt['include_root'] =  $this->paramDefault('include-root', 0, 'numeric');
         $opt['exclude'] =       $this->paramDefault('exclude');
         $opt['group'] =         $this->paramDefault('group', 0, 'numeric');
+        $opt['rankdir'] =       $this->paramDefault('rankdir');
+
+        if (!in_array($opt['rankdir'], array('LR', 'TB', 'BT', 'RL'))) {
+            $opt['rankdir'] = 'LR';
+        }
 
         $renderClasses = array();
 
@@ -205,6 +210,7 @@ class Silvergraph extends CliController {
         }
 
         $this->customise(array(
+            "Rankdir" => $opt['rankdir'],
             "Folders" => $folders
         ));
 

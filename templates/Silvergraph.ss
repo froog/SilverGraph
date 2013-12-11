@@ -1,5 +1,6 @@
 digraph g {
 graph [
+rankdir = "$Rankdir"
 ];
 node [
 fontsize = "16"
