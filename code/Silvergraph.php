@@ -214,7 +214,15 @@ class Silvergraph extends CliController {
             "Folders" => $folders
         ));
 
+        // Defend against source_file_comments
+        Config::nest();
+        Config::inst()->update('SSViewer', 'source_file_comments', false);
+
+        // Render the output
         $output = $this->renderWith("Silvergraph");
+
+        // Restore the original configuration
+        Config::unnest();
 
         //Set output as plain text, and strip excess empty lines
         $this->response->addHeader("Content-type", "text/plain");
