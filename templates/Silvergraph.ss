@@ -17,12 +17,12 @@ edge [
         "$ClassName" [
         label = <
                 <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-                    <tr><td colspan="2" bgcolor="#cccccc"><font>$ClassName</font></td></tr>
+                    <tr><td colspan="2" bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$ClassName</font></b></td></tr>
                     <% if FieldList %>
                         <% loop FieldList %>
                             <tr>
-                                <td>$FieldName</td>
-                                <td>$DataType</td>
+                                <td><font face="Helvetica Bold">$FieldName</font></td>
+                                <td><font face="Helvetica Italic">$DataType</font></td>
                             </tr>
                         <% end_loop %>
                     <% end_if %>
@@ -39,7 +39,7 @@ edge [
         <% loop HasOne %>
             <%-- special case for Parent, replace with "extends" --%>
             <% if Name == "Parent" %>
-                "$Up.ClassName" -> "$RemoteClass"[label="extends"];
+                "$Up.ClassName" -> "$RemoteClass"[label="extends" style="dotted"];
             <% else %>
                 "$Up.ClassName" -> "$RemoteClass"[label="$Name (has_one)"];
             <% end_if %>
@@ -54,7 +54,7 @@ edge [
 
         <% if ManyMany %>
         <% loop ManyMany %>
-            "$Up.ClassName" -> "$RemoteClass"[label="$Name (many_many)"];
+            "$Up.ClassName" -> "$RemoteClass"[label="$Name (many_many)" dir=both];
         <% end_loop %>
         <% end_if %>
     <% end_loop %>
