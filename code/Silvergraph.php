@@ -45,7 +45,7 @@ class Silvergraph extends CliController {
         $opt['rankdir'] =       $this->paramDefault('rankdir');
 
         if (!in_array($opt['rankdir'], array('LR', 'TB', 'BT', 'RL'))) {
-            $opt['rankdir'] = 'LR';
+            $opt['rankdir'] = 'TB';
         }
 
         $renderClasses = array();

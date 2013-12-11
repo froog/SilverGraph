@@ -66,7 +66,7 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * `group=1`            Group the modules into their own container
 
 ####Specify direction graph is laid out
-* `rankdir=x`            	Where x is `LR` _(default)_ ,`RL`,`TB`,or `BT` (left-right, right-left, top-bottom, bottom-top)
+* `rankdir=x`            	Where x is `TB` _(default)_ ,`LR`,`RL`, or `BT` (top-bottom, left-right, right-left, bottom-top)
 
 ## TO DO
 
