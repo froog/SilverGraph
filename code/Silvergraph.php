@@ -206,7 +206,8 @@ class Silvergraph extends CliController {
                 $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
 
                 $class->ShowData = false;
-                $dataLimit = 10;
+                $rowLimit = 10;
+                $fieldLengthLimit = 100;
 
                 //if data is set, get some data!
                 if ($opt['data'] == 1) {
@@ -215,10 +216,16 @@ class Silvergraph extends CliController {
                     //TODO - this code is particulary complex, and could be done better - refactor!
                     $dataList = new ArrayList();
                     if (ClassInfo::hasTable($className)) {
-                        $data = $className::get()->limit($dataLimit)->toNestedArray();
+                        $data = $className::get()->limit($rowLimit)->toNestedArray();
                         foreach ($data as $row) {
                             $rowData = clone $fields;
                             foreach($row as $name => $value) {
+                                //Ensure value is string, and truncate if needed
+                                $value = (string)$value;
+                                if (strlen($value) > $fieldLengthLimit) {
+                                    $value = substr($value, 0, $fieldLengthLimit) . "...";
+                                }
+
                                 $value = Convert::raw2xml($value);
                                 foreach($rowData as $field) {
                                     if ($field->FieldName == $name) {
