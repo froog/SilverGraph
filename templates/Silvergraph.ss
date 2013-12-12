@@ -17,8 +17,8 @@ edge [
         "$ClassName" [
         label = <
                 <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-                    <tr><td colspan="2" bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$ClassName</font></b></td></tr>
-                    <% if DataList %>
+                    <tr><td <% if ShowData && FieldList.Count > 0 %>colspan="$FieldList.Count"<% else %>colspan="2"<% end_if %> bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$ClassName</font></b></td></tr>
+                    <% if ShowData %>
                         <% if FieldList %>
                             <tr>
                                 <% loop FieldList %>

@@ -42,6 +42,7 @@ class Silvergraph extends CliController {
         $opt['include_root'] =  $this->paramDefault('include-root', 0, 'numeric');
         $opt['exclude'] =       $this->paramDefault('exclude');
         $opt['group'] =         $this->paramDefault('group', 0, 'numeric');
+        $opt['data'] =          $this->paramDefault('data', 0, 'numeric');
         $opt['rankdir'] =       $this->paramDefault('rankdir');
 
         if (!in_array($opt['rankdir'], array('LR', 'TB', 'BT', 'RL'))) {
@@ -204,30 +205,35 @@ class Silvergraph extends CliController {
                 $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
                 $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
 
+                $class->ShowData = false;
+                $dataLimit = 10;
+
                 //if data is set, get some data!
-                $dataList = new ArrayList();
-                if (ClassInfo::hasTable($className)) {
-                    $data = $className::get()->limit(10)->toNestedArray();
+                if ($opt['data'] == 1) {
+                    $class->ShowData = true;
 
-                    foreach ($data as $row) {
-                        $rowArray = array();
-                        foreach($row as $name => $value) {
-                            $value = Convert::raw2xml($value);
-                            $rowArray[] = ArrayData::create(
-                                array(
-                                    'Name' => $name,
-                                    'Value' => $value
-                                )
-                            );
+                    //TODO - this code is particulary complex, and could be done better - refactor!
+                    $dataList = new ArrayList();
+                    if (ClassInfo::hasTable($className)) {
+                        $data = $className::get()->limit($dataLimit)->toNestedArray();
+                        foreach ($data as $row) {
+                            $rowData = clone $fields;
+                            foreach($row as $name => $value) {
+                                $value = Convert::raw2xml($value);
+                                foreach($rowData as $field) {
+                                    if ($field->FieldName == $name) {
+                                        $field->Value = $value;
+                                    }
+                                }
+                            }
+                            $dataRow = new DataObject();
+                            $dataRow->Fields = $rowData;
+                            $dataList->push($dataRow);
                         }
-                        $rowData = ArrayList::create($rowArray);
-                        $dataRow = new DataObject();
-                        $dataRow->Fields = $rowData;
-                        $dataList->push($dataRow);
                     }
-                }
 
-                $class->DataList = $dataList;
+                    $class->DataList = $dataList;
+                }
 
                 $classes->push($class);
             }
