@@ -18,13 +18,31 @@ edge [
         label = <
                 <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
                     <tr><td colspan="2" bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$ClassName</font></b></td></tr>
-                    <% if FieldList %>
-                        <% loop FieldList %>
+                    <% if DataList %>
+                        <% if FieldList %>
                             <tr>
-                                <td><font face="Helvetica Bold">$FieldName</font></td>
-                                <td><font face="Helvetica Italic">$DataType</font></td>
+                                <% loop FieldList %>
+                                    <td><font face="Helvetica Bold">$FieldName</font></td>
+                                <% end_loop %>
+                            </tr>
+                        <% end_if %>
+
+                        <% loop DataList %>
+                            <tr>
+                                <% loop Fields %>
+                                    <td>$Value</td>
+                                <% end_loop %>
                             </tr>
                         <% end_loop %>
+                    <% else %>
+                        <% if FieldList %>
+                            <% loop FieldList %>
+                                <tr>
+                                    <td><font face="Helvetica Bold">$FieldName</font></td>
+                                    <td><font face="Helvetica Italic">$DataType</font></td>
+                                </tr>
+                            <% end_loop %>
+                        <% end_if %>
                     <% end_if %>
                 </table>
                 >

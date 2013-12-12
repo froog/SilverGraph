@@ -122,7 +122,7 @@ class Silvergraph extends CliController {
                         $field->FieldName = $fieldName;
 
                         //special case - Enums are too long - put new lines on commas
-                        if (strpos($dataType, "Enum") === 0) {
+                        if (strpos(strtolower($dataType), "enum") === 0) {
                             $dataType = str_replace(",", ",<br/>", $dataType);
                         }
 
@@ -158,9 +158,12 @@ class Silvergraph extends CliController {
                 // ?? eg; for SiteTree, BackLinkTracking is a belongs_many_many
                 */
 
-                //$belongsToArray = $singleton->belongs_to();
-                //print_r(ClassInfo::ancestry($className));
-                //print_r($singleton->getClassAncestry());
+                /*$belongsToArray = $singleton->belongs_to();
+                print_r(ClassInfo::ancestry($className));
+                print_r($singleton->getClassAncestry());*/
+                /*$belongsManyManyArray = Config::inst()->get($className, 'belongs_many_many', $config);
+                echo $className;
+                print_r($belongsManyManyArray);*/
 
 
                 //Add parent class to HasOne
@@ -201,6 +204,30 @@ class Silvergraph extends CliController {
                 $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
                 $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
 
+                //if data is set, get some data!
+                $dataList = new ArrayList();
+                if (ClassInfo::hasTable($className)) {
+                    $data = $className::get()->limit(10)->toNestedArray();
+
+                    foreach ($data as $row) {
+                        $rowArray = array();
+                        foreach($row as $name => $value) {
+                            $value = Convert::raw2xml($value);
+                            $rowArray[] = ArrayData::create(
+                                array(
+                                    'Name' => $name,
+                                    'Value' => $value
+                                )
+                            );
+                        }
+                        $rowData = ArrayList::create($rowArray);
+                        $dataRow = new DataObject();
+                        $dataRow->Fields = $rowData;
+                        $dataList->push($dataRow);
+                    }
+                }
+
+                $class->DataList = $dataList;
 
                 $classes->push($class);
             }
