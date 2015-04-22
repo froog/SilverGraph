@@ -279,7 +279,10 @@ class Silvergraph extends CliController {
     private function execute($parameters, $input) {
 
         $cmd = 'dot ' . $parameters;
-
+        if (defined('SILVERGRAPH_GRAPHVIZ_PATH')) {
+            $cmd = SILVERGRAPH_GRAPHVIZ_PATH . $cmd;
+        }
+        
         //Execute the dot command on the local machine.
         //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
         $descriptorspec = array(

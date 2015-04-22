@@ -13,6 +13,12 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 * Composer/Packagist: Install composer and then run `composer require froog/silvergraph` (* for version)
 * Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
 
+###Installation on OSX###
+
+* Install Graphviz via Homebrew: `brew install graphviz` and note down the location
+* Add the location to your `_ss_environment.php` file, e.g.:    
+`define('SILVERGRAPH_GRAPHVIZ_PATH', '/usr/local/Cellar/graphviz/2.38.0/bin/');`
+
 ##Requirements##
  * SilverStripe 3.0.0+
  * To create images: GraphViz (latest version) http://www.graphviz.org/ 
