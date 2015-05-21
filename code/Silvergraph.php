@@ -117,18 +117,7 @@ class Silvergraph extends CliController {
                         $dataFields = DataObject::custom_database_fields($className);
                     }
 
-                    foreach($dataFields as $fieldName => $dataType) {
-                        $field = new DataObject();
-                        $field->FieldName = $fieldName;
-
-                        //special case - Enums are too long - put new lines on commas
-                        if (strpos($dataType, "Enum") === 0) {
-                            $dataType = str_replace(",", ",<br/>", $dataType);
-                        }
-
-                        $field->DataType = $dataType;
-                        $fields->push($field);
-                    }
+                    $fields = self::formatDataFields($dataFields, $fields);
                 }
 
                 $class->FieldList = $fields;
@@ -199,8 +188,7 @@ class Silvergraph extends CliController {
 
                 $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
                 $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyMany = self::relationObject($manyManyArray, $excludeArray);
-
+                $class->ManyMany = self::relationObject($manyManyArray, $excludeArray, $class->ClassName);
 
                 $classes->push($class);
             }
@@ -231,7 +219,7 @@ class Silvergraph extends CliController {
         return $output;
     }
 
-    public static function relationObject($relationArray, $excludeArray) {
+    public static function relationObject($relationArray, $excludeArray, $manyManyClass = false) {
         $relationList = new ArrayList();
         if (is_array($relationArray)) {
             foreach($relationArray as $name => $remoteClass) {
@@ -240,11 +228,40 @@ class Silvergraph extends CliController {
                     $relation = new DataObject();
                     $relation->Name = $name;
                     $relation->RemoteClass = $remoteClass;
+                    if($manyManyClass) {
+                        $object = new $manyManyClass();
+                        $relation->ExtraFields = self::formatDataFields($object->many_many_extraFields($name));
+                    }
                     $relationList->push($relation);
                 }
             }
         }
         return $relationList;
+    }
+
+    public static function formatDataFields($dataFields, $fields = null) {
+        if(!$fields) {
+            $fields = new ArrayList();
+        }
+
+        if(!is_array($dataFields)) {
+            return $fields;
+        }
+
+        foreach($dataFields as $fieldName => $dataType) {
+            $field = new DataObject();
+            $field->FieldName = $fieldName;
+
+            //special case - Enums are too long - put new lines on commas
+            if (strpos($dataType, "Enum") === 0) {
+                $dataType = str_replace(",", ",<br/>", $dataType);
+            }
+
+            $field->DataType = $dataType;
+            $fields->push($field);
+        }
+
+        return $fields;
     }
 
     /** Generate a png file from the dot template
