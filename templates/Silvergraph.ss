@@ -34,7 +34,7 @@ edge [
 		        "$Name" [
 		        label = <
 		        <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-			        <tr><td colspan="2" bgcolor="#d4d6d8"><font face="Helvetica Bold">$Name</font><font face="Helvetica"> (many_many)</font></td></tr>
+			        <tr><td colspan="2" border="0">$Name (many_many)</td></tr>
                     <% loop ExtraFields %>
 				        <tr>
 					        <td><font face="Helvetica Bold">$FieldName</font></td>
