@@ -310,7 +310,7 @@ class Silvergraph extends CliController {
             $return_value = proc_close($process);
 
             if (!empty($error)) {
-                user_error("Couldn't execute dot command, ensure graphviz is installed and dot is on path. Shell error: $error");
+                user_error("Couldn't execute dot command, ensure graphviz is installed and 'dot' postpended to your graphviz path. See README.md. Shell error: $error");
             }
 
             return $output;
