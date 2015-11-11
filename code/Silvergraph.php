@@ -186,9 +186,9 @@ class Silvergraph extends CliController {
                     $manyManyArray = null;
                 }
 
-                $class->HasOne = self::relationObject($hasOneArray, $excludeArray);
-                $class->HasMany = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyMany = self::relationObject($manyManyArray, $excludeArray, $class->ClassName);
+                $class->HasOneList = self::relationObject($hasOneArray, $excludeArray);
+                $class->HasManyList = self::relationObject($hasManyArray, $excludeArray);
+                $class->ManyManyList = self::relationObject($manyManyArray, $excludeArray, $class->ClassName);
 
                 $classes->push($class);
             }

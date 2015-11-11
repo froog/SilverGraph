@@ -50,12 +50,12 @@ edge [
     <% if Group %>}<% end_if %>
 <% end_loop %>
 
-<% loop Folders %>
-    <% loop Classes %>
-        <% if HasOne %>
-        <% loop HasOne %>
+<% loop $Folders %>
+    <% loop $Classes %>
+        <% if $HasOneList %>
+        <% loop $HasOneList %>
             <%-- special case for Parent, replace with "extends" --%>
-            <% if Name == "Parent" %>
+            <% if $Name == "Parent" %>
                 "$Up.ClassName" -> "$RemoteClass"[label="extends" style="dotted"];
             <% else %>
                 "$Up.ClassName" -> "$RemoteClass"[label="$Name (has_one)"];
@@ -63,14 +63,14 @@ edge [
         <% end_loop %>
         <% end_if %>
 
-        <% if HasMany %>
-        <% loop HasMany %>
+        <% if $HasManyList %>
+        <% loop $HasManyList %>
             "$Up.ClassName" -> "$RemoteClass"[label="$Name (has_many)"];
         <% end_loop %>
         <% end_if %>
 
-        <% if ManyMany %>
-        <% loop ManyMany %>
+        <% if $ManyManyList %>
+        <% loop $ManyManyList %>
             <% if $ExtraFields %>
 	            "$Name" -> "$RemoteClass";
 	            "$Name" -> "$Up.ClassName";
