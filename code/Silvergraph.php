@@ -1,4 +1,12 @@
 <?php
+
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Convert;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DataObjectSchema;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Control\CliController;
 /**
  * Class Silvergraph
  *
@@ -51,7 +59,7 @@ class Silvergraph extends CliController {
         $renderClasses = array();
 
         //Get all DataObject subclasses
-        $dataClasses = ClassInfo::subclassesFor('DataObject');
+        $dataClasses = ClassInfo::subclassesFor('SilverStripe\\ORM\\DataObject');
 
         //Remove DataObject itself
         array_shift($dataClasses);
@@ -114,7 +122,7 @@ class Silvergraph extends CliController {
                     if ($opt['fields'] > 1) {
                         $dataFields = $singleton->inheritedDatabaseFields();
                     } else {
-                        $dataFields = DataObject::custom_database_fields($className);
+                        $dataFields = DataObject::getSchema()->databaseFields($className);
                     }
 
                     $fields = self::formatDataFields($dataFields, $fields);
@@ -163,7 +171,7 @@ class Silvergraph extends CliController {
                 $hasOneArray["Parent"] = $parentClass;
 
                 //Ensure DataObject is not shown if include-root = 0
-                if ($opt['include_root'] == 0 && $parentClass == "DataObject") {
+                if ($opt['include_root'] == 0 && $parentClass == "SilverStripe\\ORM\\DataObject") {
                     unset($hasOneArray["Parent"]);
                 }
 
@@ -204,7 +212,7 @@ class Silvergraph extends CliController {
 
         // Defend against source_file_comments
         Config::nest();
-        Config::inst()->update('SSViewer', 'source_file_comments', false);
+        Config::inst()->update('SilverStripe\\View\\SSViewer', 'source_file_comments', false);
 
         // Render the output
         $output = $this->renderWith("Silvergraph");
@@ -299,7 +307,7 @@ class Silvergraph extends CliController {
         if (defined('SILVERGRAPH_GRAPHVIZ_PATH')) {
             $cmd = SILVERGRAPH_GRAPHVIZ_PATH . $cmd;
         }
-        
+
         //Execute the dot command on the local machine.
         //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
         $descriptorspec = array(
