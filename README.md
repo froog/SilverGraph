@@ -75,10 +75,4 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 ####Specify direction graph is laid out
 * `rankdir=x`            	Where x is `TB` _(default)_ ,`LR`,`RL`, or `BT` (top-bottom, left-right, right-left, bottom-top)
 
-## TO DO
-
-* Better default styling/colours of the graph
-* Less verbose option for relations, eg; combining has_one, has_many paths on the same path
-* Better error handling from dot -> png, if error in dot format
-
 
