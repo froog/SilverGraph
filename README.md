@@ -10,26 +10,27 @@ Flexible configuration options and can be called from command line and URL.
 _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 
 ##Installation##
-* Composer/Packagist: Install composer and then run `composer require froog/silvergraph` (* for version)
-* Manual: Download and extract the silvergraph folder into the top level of your site, and visit /dev/build?flush=all to rebuild the database.
+* Composer/Packagist: Install composer, run `composer require froog/silvergraph` (* for version) and  visit `?flush=1` to update the routing table.
+* Manual: Download and extract silvergraph as `SilverGraph` folder in the top level of your site and visit `?flush=1` to update the routing table.
 
 ###Installation on OSX###
 
 * Install Graphviz via Homebrew: `brew install graphviz` and note down the location
-* Add the location to your `_ss_environment.php` file, postpending 'dot' to the end of the path, e.g.:    
+* Add the location to your `_ss_environment.php` file, postpending 'dot' to the end of the path, e.g.:
 `define('SILVERGRAPH_GRAPHVIZ_PATH', '/usr/local/Cellar/graphviz/2.38.0/bin/dot');`
+* Visit `?flush=1` to update the routing table.
 
 ##Requirements##
  * SilverStripe 3.0.0+
- * To create images: GraphViz (latest version) http://www.graphviz.org/ 
-  * To install (Debian/Ubuntu): `apt-get install graphviz`  
+ * To create images: GraphViz (latest version) http://www.graphviz.org/
+  * To install (Debian/Ubuntu): `apt-get install graphviz`
 
 ##Usage##
 
 ###Command line: (in site root)###
 
-* Default png image:   `sake Silvergraph/png > datamodel.png` 
-* Parameters:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png` 
+* Default png image:   `sake Silvergraph/png > datamodel.png`
+* Parameters:   `sake Silvergraph/png location=mysite,cms inherited=1 exclude=SiteTree > datamodel.png`
 * Default dot file:    `sake Silvergraph/dot > datamodel.dot`
 
 ###Browser: (logged in as admin)###
@@ -73,11 +74,5 @@ _Example call: http://example.com/Silvergraph/png?location=cms,framework,mysite_
 
 ####Specify direction graph is laid out
 * `rankdir=x`            	Where x is `TB` _(default)_ ,`LR`,`RL`, or `BT` (top-bottom, left-right, right-left, bottom-top)
-
-## TO DO
-
-* Better default styling/colours of the graph
-* Less verbose option for relations, eg; combining has_one, has_many paths on the same path
-* Better error handling from dot -> png, if error in dot format
 
 
