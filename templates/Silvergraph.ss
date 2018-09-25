@@ -17,7 +17,7 @@ edge [
         "$ClassName" [
         label = <
                 <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-                    <tr><td colspan="2" bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$ClassName</font></b></td></tr>
+                    <tr><td colspan="2" bgcolor="#d4d6d8"><b><font color="#0073c1" face="Helvetica Bold">$TableName</font></b></td></tr>
                     <% if FieldList %>
                         <% loop FieldList %>
                             <tr>

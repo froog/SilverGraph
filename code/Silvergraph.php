@@ -101,6 +101,7 @@ class Silvergraph extends CliController {
             $folder->Name = $folderName;
             $folder->Group = ($opt['group'] == 1);
             $classes = new ArrayList();
+            $schema = DataObject::getSchema();
 
             foreach ($classList as $className) {
                 //Create a singleton of the class, to use for has_one,etc  instance methods
@@ -109,6 +110,7 @@ class Silvergraph extends CliController {
                 //Create a blank DO to use for rendering on the template
                 $class = new DataObject();
                 $class->ClassName = $className;
+                $class->TableName = addslashes($schema->tableName($className));
 
                 //Get all the data fields for the class
                 //fields = 0 - No fields
@@ -196,7 +198,7 @@ class Silvergraph extends CliController {
 
                 $class->HasOneList = self::relationObject($hasOneArray, $excludeArray);
                 $class->HasManyList = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyManyList = self::relationObject($manyManyArray, $excludeArray, $class->ClassName);
+                $class->ManyManyList = self::relationObject($manyManyArray, $excludeArray, $className);
 
                 $classes->push($class);
             }
@@ -238,7 +240,8 @@ class Silvergraph extends CliController {
                     $relation->RemoteClass = $remoteClass;
                     if($manyManyClass) {
                         $object = new $manyManyClass();
-                        $relation->ExtraFields = self::formatDataFields($object->many_many_extraFields($name));
+                        $extra = $object->manyManyExtraFields($name);
+                        $relation->ExtraFields = self::formatDataFields($extra[$name]);
                     }
                     $relationList->push($relation);
                 }
