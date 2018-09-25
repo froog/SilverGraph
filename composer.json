@@ -1,8 +1,8 @@
 {
     "name": "froog/silvergraph",
     "description": "Generates data model visualisations from SilverSripe DataObjects, displaying database fields, relations and ancestry",
-    "type": "silverstripe-module",
-    "keywords": ["silverstripe", "permissions", "cms", "member"],
+    "type": "silverstripe-vendormodule",
+    "keywords": ["silverstripe", "permissions", "member"],
     "license": "BSD-3-Clause",
     "authors": [
         {
@@ -13,6 +13,6 @@
 
     "require":
     {
-	"silverstripe/framework": "~4.0"
+	"silverstripe/framework": "^4"
     }
 }
