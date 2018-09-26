@@ -117,20 +117,10 @@ class Silvergraph extends CliController {
                 //fields = 1 - only uninherited fields
                 //fields = 2 - inherited fields
 
-                $fields = new ArrayList();
-
                 if ($opt['fields'] > 0) {
-
-                    if ($opt['fields'] > 1) {
-                        $dataFields = $singleton->inheritedDatabaseFields();
-                    } else {
-                        $dataFields = DataObject::getSchema()->databaseFields($className);
-                    }
-
-                    $fields = self::formatDataFields($dataFields, $fields);
+                    $dataFields = $schema->databaseFields($className, $opt['fields'] > 1);
+                    $class->FieldList = self::formatDataFields($dataFields);
                 }
-
-                $class->FieldList = $fields;
 
                 if ($opt['relations'] > 1) {
                     $config = Config::INHERITED;
@@ -250,10 +240,8 @@ class Silvergraph extends CliController {
         return $relationList;
     }
 
-    public static function formatDataFields($dataFields, $fields = null) {
-        if(!$fields) {
-            $fields = new ArrayList();
-        }
+    public static function formatDataFields($dataFields) {
+        $fields = new ArrayList();
 
         if(!is_array($dataFields)) {
             return $fields;
