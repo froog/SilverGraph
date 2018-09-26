@@ -29,7 +29,7 @@ edge [
                 </table>
                 >
         ];
-        <% loop ManyMany %>
+        <% loop ManyManyList %>
             <% if ExtraFields %>
 		        "$Name" [
 		        label = <
