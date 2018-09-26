@@ -105,12 +105,8 @@ class Silvergraph extends CliController {
             $schema = DataObject::getSchema();
 
             foreach ($classList as $className) {
-                //Create a singleton of the class, to use for has_one,etc  instance methods
-                $singleton = singleton($className);
-
-                //Create a blank DO to use for rendering on the template
                 $class = new ArrayData();
-                $class->ClassName = $className;
+                $class->ClassName = addslashes($className);
                 $class->TableName = addslashes($schema->tableName($className));
 
                 //Get all the data fields for the class
@@ -224,11 +220,13 @@ class Silvergraph extends CliController {
         $relationList = new ArrayList();
         if (is_array($relationArray)) {
             foreach($relationArray as $name => $remoteClass) {
+                //Strip everything after a dot (polymorphic relations)
+                $remoteClass = explode('.', $remoteClass)[0];
                 //Only add the relation if it's not in the exclusion array
                 if (!in_array($remoteClass, $excludeArray)) {
                     $relation = new ArrayData();
                     $relation->Name = $name;
-                    $relation->RemoteClass = $remoteClass;
+                    $relation->RemoteClass = addslashes($remoteClass);
                     if($manyManyClass) {
                         $object = new $manyManyClass();
                         $extra = $object->manyManyExtraFields($name);
