@@ -7,6 +7,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataObjectSchema;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\CliController;
+use SilverStripe\View\ArrayData;
 /**
  * Class Silvergraph
  *
@@ -97,7 +98,7 @@ class Silvergraph extends CliController {
 
         foreach($renderClasses as $folderName => $classList) {
 
-            $folder = new DataObject();
+            $folder = new ArrayData();
             $folder->Name = $folderName;
             $folder->Group = ($opt['group'] == 1);
             $classes = new ArrayList();
@@ -108,7 +109,7 @@ class Silvergraph extends CliController {
                 $singleton = singleton($className);
 
                 //Create a blank DO to use for rendering on the template
-                $class = new DataObject();
+                $class = new ArrayData();
                 $class->ClassName = $className;
                 $class->TableName = addslashes($schema->tableName($className));
 
@@ -225,7 +226,7 @@ class Silvergraph extends CliController {
             foreach($relationArray as $name => $remoteClass) {
                 //Only add the relation if it's not in the exclusion array
                 if (!in_array($remoteClass, $excludeArray)) {
-                    $relation = new DataObject();
+                    $relation = new ArrayData();
                     $relation->Name = $name;
                     $relation->RemoteClass = $remoteClass;
                     if($manyManyClass) {
@@ -248,7 +249,7 @@ class Silvergraph extends CliController {
         }
 
         foreach($dataFields as $fieldName => $dataType) {
-            $field = new DataObject();
+            $field = new ArrayData();
             $field->FieldName = $fieldName;
 
             //special case - Enums are too long - put new lines on commas
