@@ -89,7 +89,6 @@ class Silvergraph extends CliController {
                 }
             }
         }
-
         if (count($renderClasses) == 0) {
             user_error("No classes that extend DataObject found in location: " . Convert::raw2xml($opt['location']));
         }
@@ -183,9 +182,9 @@ class Silvergraph extends CliController {
                     $manyManyArray = null;
                 }
 
-                $class->HasOneList = self::relationObject($hasOneArray, $excludeArray);
-                $class->HasManyList = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyManyList = self::relationObject($manyManyArray, $excludeArray, $className);
+                $class->HasOneList = self::relationObject($className, $hasOneArray, $excludeArray);
+                $class->HasManyList = self::relationObject($className, $hasManyArray, $excludeArray);
+                $class->ManyManyList = self::relationObject($className, $manyManyArray, $excludeArray);
 
                 $classes->push($class);
             }
@@ -216,7 +215,8 @@ class Silvergraph extends CliController {
         return $output;
     }
 
-    public static function relationObject($relationArray, $excludeArray, $manyManyClass = false) {
+    public static function relationObject($className, $relationArray, $excludeArray) {
+        $schema = DataObject::getSchema();
         $relationList = new ArrayList();
         if (is_array($relationArray)) {
             foreach($relationArray as $name => $remoteClass) {
@@ -227,10 +227,11 @@ class Silvergraph extends CliController {
                     $relation = new ArrayData();
                     $relation->Name = $name;
                     $relation->RemoteClass = addslashes($remoteClass);
-                    if($manyManyClass) {
-                        $object = new $manyManyClass();
-                        $extra = $object->manyManyExtraFields($name);
-                        $relation->ExtraFields = self::formatDataFields($extra[$name]);
+                    $manyMany = $schema->manyManyComponent($className, $name);
+                    if ($manyMany) {
+                        $extra = $schema->manyManyExtraFieldsForComponent($className, $name);
+                        $relation->Name = addslashes($manyMany['join']);
+                        $relation->ExtraFields = self::formatDataFields($extra);
                     }
                     $relationList->push($relation);
                 }
