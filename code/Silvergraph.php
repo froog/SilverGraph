@@ -2,6 +2,7 @@
 
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Environment;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataObjectSchema;
@@ -295,11 +296,12 @@ class Silvergraph extends CliController {
      *
      */
     private function execute($parameters, $input) {
-
-        $cmd = 'dot ' . $parameters;
-        if (defined('SILVERGRAPH_GRAPHVIZ_PATH')) {
-            $cmd = SILVERGRAPH_GRAPHVIZ_PATH . $cmd;
+        // Prepend the path to the dot command, if explicitely defined
+        $cmd = Environment::getEnv('SILVERGRAPH_GRAPHVIZ_PATH');
+        if ($cmd === false) {
+            $cmd = '';
         }
+        $cmd .= 'dot ' . $parameters;
 
         //Execute the dot command on the local machine.
         //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
