@@ -8,6 +8,8 @@ use SilverStripe\ORM\DataObjectSchema;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\CliController;
 use SilverStripe\View\ArrayData;
+use SilverStripe\View\SSViewer;
+
 /**
  * Class Silvergraph
  *
@@ -60,7 +62,7 @@ class Silvergraph extends CliController {
         $renderClasses = array();
 
         //Get all DataObject subclasses
-        $dataClasses = ClassInfo::subclassesFor('SilverStripe\\ORM\\DataObject');
+        $dataClasses = ClassInfo::subclassesFor(DataObject::class);
 
         //Remove DataObject itself
         array_shift($dataClasses);
@@ -159,7 +161,7 @@ class Silvergraph extends CliController {
                 $hasOneArray["Parent"] = $parentClass;
 
                 //Ensure DataObject is not shown if include-root = 0
-                if ($opt['include_root'] == 0 && $parentClass == "SilverStripe\\ORM\\DataObject") {
+                if ($opt['include_root'] == 0 && $parentClass == DataObject::class) {
                     unset($hasOneArray["Parent"]);
                 }
 
@@ -200,7 +202,7 @@ class Silvergraph extends CliController {
 
         // Defend against source_file_comments
         Config::nest();
-        Config::inst()->update('SilverStripe\\View\\SSViewer', 'source_file_comments', false);
+        Config::inst()->update(SSViewer::class, 'source_file_comments', false);
 
         // Render the output
         $output = $this->renderWith("Silvergraph");
