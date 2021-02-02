@@ -1,4 +1,16 @@
 <?php
+
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Environment;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DataObjectSchema;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Control\CliController;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\SSViewer;
+
 /**
  * Class Silvergraph
  *
@@ -51,7 +63,7 @@ class Silvergraph extends CliController {
         $renderClasses = array();
 
         //Get all DataObject subclasses
-        $dataClasses = ClassInfo::subclassesFor('DataObject');
+        $dataClasses = ClassInfo::subclassesFor(DataObject::class);
 
         //Remove DataObject itself
         array_shift($dataClasses);
@@ -80,7 +92,6 @@ class Silvergraph extends CliController {
                 }
             }
         }
-
         if (count($renderClasses) == 0) {
             user_error("No classes that extend DataObject found in location: " . Convert::raw2xml($opt['location']));
         }
@@ -89,38 +100,26 @@ class Silvergraph extends CliController {
 
         foreach($renderClasses as $folderName => $classList) {
 
-            $folder = new DataObject();
+            $folder = new ArrayData();
             $folder->Name = $folderName;
             $folder->Group = ($opt['group'] == 1);
             $classes = new ArrayList();
+            $schema = DataObject::getSchema();
 
             foreach ($classList as $className) {
-                //Create a singleton of the class, to use for has_one,etc  instance methods
-                $singleton = singleton($className);
-
-                //Create a blank DO to use for rendering on the template
-                $class = new DataObject();
-                $class->ClassName = $className;
+                $class = new ArrayData();
+                $class->ClassName = addslashes($className);
+                $class->TableName = addslashes($schema->tableName($className));
 
                 //Get all the data fields for the class
                 //fields = 0 - No fields
                 //fields = 1 - only uninherited fields
                 //fields = 2 - inherited fields
 
-                $fields = new ArrayList();
-
                 if ($opt['fields'] > 0) {
-
-                    if ($opt['fields'] > 1) {
-                        $dataFields = $singleton->inheritedDatabaseFields();
-                    } else {
-                        $dataFields = DataObject::custom_database_fields($className);
-                    }
-
-                    $fields = self::formatDataFields($dataFields, $fields);
+                    $dataFields = $schema->databaseFields($className, $opt['fields'] > 1);
+                    $class->FieldList = self::formatDataFields($dataFields);
                 }
-
-                $class->FieldList = $fields;
 
                 if ($opt['relations'] > 1) {
                     $config = Config::INHERITED;
@@ -163,7 +162,7 @@ class Silvergraph extends CliController {
                 $hasOneArray["Parent"] = $parentClass;
 
                 //Ensure DataObject is not shown if include-root = 0
-                if ($opt['include_root'] == 0 && $parentClass == "DataObject") {
+                if ($opt['include_root'] == 0 && $parentClass == DataObject::class) {
                     unset($hasOneArray["Parent"]);
                 }
 
@@ -186,9 +185,9 @@ class Silvergraph extends CliController {
                     $manyManyArray = null;
                 }
 
-                $class->HasOneList = self::relationObject($hasOneArray, $excludeArray);
-                $class->HasManyList = self::relationObject($hasManyArray, $excludeArray);
-                $class->ManyManyList = self::relationObject($manyManyArray, $excludeArray, $class->ClassName);
+                $class->HasOneList = self::relationObject($className, $hasOneArray, $excludeArray);
+                $class->HasManyList = self::relationObject($className, $hasManyArray, $excludeArray);
+                $class->ManyManyList = self::relationObject($className, $manyManyArray, $excludeArray);
 
                 $classes->push($class);
             }
@@ -204,7 +203,7 @@ class Silvergraph extends CliController {
 
         // Defend against source_file_comments
         Config::nest();
-        Config::inst()->update('SSViewer', 'source_file_comments', false);
+        Config::inst()->update(SSViewer::class, 'source_file_comments', false);
 
         // Render the output
         $output = $this->renderWith("Silvergraph");
@@ -219,18 +218,23 @@ class Silvergraph extends CliController {
         return $output;
     }
 
-    public static function relationObject($relationArray, $excludeArray, $manyManyClass = false) {
+    public static function relationObject($className, $relationArray, $excludeArray) {
+        $schema = DataObject::getSchema();
         $relationList = new ArrayList();
         if (is_array($relationArray)) {
             foreach($relationArray as $name => $remoteClass) {
+                //Strip everything after a dot (polymorphic relations)
+                $remoteClass = explode('.', $remoteClass)[0];
                 //Only add the relation if it's not in the exclusion array
                 if (!in_array($remoteClass, $excludeArray)) {
-                    $relation = new DataObject();
+                    $relation = new ArrayData();
                     $relation->Name = $name;
-                    $relation->RemoteClass = $remoteClass;
-                    if($manyManyClass) {
-                        $object = new $manyManyClass();
-                        $relation->ExtraFields = self::formatDataFields($object->many_many_extraFields($name));
+                    $relation->RemoteClass = addslashes($remoteClass);
+                    $manyMany = $schema->manyManyComponent($className, $name);
+                    if ($manyMany) {
+                        $extra = $schema->manyManyExtraFieldsForComponent($className, $name);
+                        $relation->Name = addslashes($manyMany['join']);
+                        $relation->ExtraFields = self::formatDataFields($extra);
                     }
                     $relationList->push($relation);
                 }
@@ -239,22 +243,20 @@ class Silvergraph extends CliController {
         return $relationList;
     }
 
-    public static function formatDataFields($dataFields, $fields = null) {
-        if(!$fields) {
-            $fields = new ArrayList();
-        }
+    public static function formatDataFields($dataFields) {
+        $fields = new ArrayList();
 
         if(!is_array($dataFields)) {
             return $fields;
         }
 
         foreach($dataFields as $fieldName => $dataType) {
-            $field = new DataObject();
+            $field = new ArrayData();
             $field->FieldName = $fieldName;
 
             //special case - Enums are too long - put new lines on commas
             if (strpos($dataType, "Enum") === 0) {
-                $dataType = str_replace(",", ",<br/>", $dataType);
+                $dataType = str_replace(",", ",\n", $dataType);
             }
 
             $field->DataType = $dataType;
@@ -294,12 +296,13 @@ class Silvergraph extends CliController {
      *
      */
     private function execute($parameters, $input) {
-
-        $cmd = 'dot ' . $parameters;
-        if (defined('SILVERGRAPH_GRAPHVIZ_PATH')) {
-            $cmd = SILVERGRAPH_GRAPHVIZ_PATH . $cmd;
+        // Prepend the path to the dot command, if explicitely defined
+        $cmd = Environment::getEnv('SILVERGRAPH_GRAPHVIZ_PATH');
+        if ($cmd === false) {
+            $cmd = '';
         }
-        
+        $cmd .= 'dot ' . $parameters;
+
         //Execute the dot command on the local machine.
         //Using pipes as per the example here: http://php.net/manual/en/function.proc-open.php
         $descriptorspec = array(
