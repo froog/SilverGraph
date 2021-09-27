@@ -223,9 +223,19 @@ class Silvergraph extends CliController {
         $relationList = new ArrayList();
         if (is_array($relationArray)) {
             foreach($relationArray as $name => $remoteClass) {
-                //Strip everything after a dot (polymorphic relations)
-                $remoteClass = explode('.', $remoteClass)[0];
-                //Only add the relation if it's not in the exclusion array
+
+                // check if there's a complex relation
+                if (is_array($remoteClass)) {
+                    
+                    // use through attribute on complex relations
+                    $remoteClass = $remoteClass['through'];
+                } else {
+                    
+                    // Strip everything after a dot (polymorphic relations)
+                    $remoteClass = explode('.', $remoteClass)[0];
+                }
+
+                // Only add the relation if it's not in the exclusion array
                 if (!in_array($remoteClass, $excludeArray)) {
                     $relation = new ArrayData();
                     $relation->Name = $name;
